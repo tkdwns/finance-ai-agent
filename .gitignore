@@ -1,0 +1,52 @@
+# --- 환경 변수 / 시크릿 ---
+.env
+.env.local
+*.pem
+*.key
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.Python
+build/
+dist/
+*.egg
+
+# --- 가상환경 ---
+venv/
+.venv/
+env/
+ENV/
+
+# --- 데이터베이스 / 데이터 파일 (수집 데이터는 개인 환경에만) ---
+*.db
+*.sqlite3
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# --- 생성된 보고서 (필요시 주석 처리하여 커밋 가능) ---
+reports_output/*
+!reports_output/.gitkeep
+
+# --- 로그 ---
+*.log
+logs/
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- 테스트/커버리지 ---
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Jupyter ---
+.ipynb_checkpoints/

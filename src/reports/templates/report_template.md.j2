@@ -1,0 +1,99 @@
+# {{ period_label }} 금융 리포트 — {{ asset_class_label }}
+
+**기간**: {{ period_start }} ~ {{ period_end }}
+**생성 시각**: {{ generated_at }}
+
+---
+
+## 핵심 키워드
+
+{% if keywords %}
+{% for kw in keywords %}
+{{ loop.index }}. **{{ kw.keyword }}** (중요도 {{ "%.1f"|format(kw.score) }})
+{% if kw.explanation %}
+   - {{ kw.explanation }}
+{% endif %}
+{% endfor %}
+{% else %}
+_이 기간에 추출된 키워드가 없습니다. `scripts.extract_keywords`를 먼저 실행하세요._
+{% endif %}
+
+---
+
+{% if indicators %}
+## 주요 금리·지수 지표
+
+{% for ind in indicators %}
+- **{{ ind.name }}**: {{ "%.2f"|format(ind.latest_value) }}{{ ind.unit }} ({{ ind.latest_date.strftime("%Y-%m-%d") }} 기준){% if not ind.is_single_point %}, 기간 중 {{ "%+.2f"|format(ind.change) }}{{ ind.unit }} 변화{% endif %}
+
+{% endfor %}
+{% if bond_charts %}
+<table>
+<tr>
+{% for chart in bond_charts %}
+<td align="center"><img src="{{ chart.path }}" width="320"><br>{{ chart.name }}</td>
+{% if loop.index % 3 == 0 and not loop.last %}
+</tr>
+<tr>
+{% endif %}
+{% endfor %}
+</tr>
+</table>
+
+{% endif %}
+---
+
+{% endif %}
+{% if transactions %}
+## 부동산 실거래가
+
+{% for t in transactions %}
+- **{{ t.region }}**: {{ t.count }}건, 평균 {{ "{:,.0f}".format(t.avg_price) }}만원 (범위 {{ "{:,.0f}".format(t.min_price) }}~{{ "{:,.0f}".format(t.max_price) }}만원)
+
+{% endfor %}
+{% if real_estate_chart_path %}
+![지역별 월평균 거래가 추이]({{ real_estate_chart_path }})
+
+{% endif %}
+---
+
+{% endif %}
+{% if law_amendments %}
+## 법령·규제 개정
+
+{% for law in law_amendments %}
+- **{{ law.title }}** ({{ law.amendment_date.strftime("%Y-%m-%d") if law.amendment_date else "시행일 미상" }})
+  {{ law.summary }}
+
+{% endfor %}
+---
+
+{% endif %}
+## 주요 공시 · 뉴스
+
+전체 {{ total_documents }}건 중 최신 {{ displayed_documents }}건 표시
+
+{% if document_groups %}
+{% for group in document_groups %}
+### {{ group.label }} ({{ group.count }}건)
+
+{{ group.summary }}
+
+<details>
+<summary>원문 목록 보기 ({{ group.count }}건)</summary>
+
+{% for item in group.titles %}
+- [{{ item.title }}]({{ item.url }}){% if item.entity_name %} — {{ item.entity_name }}{% endif %} ({{ item.published_at.strftime("%Y-%m-%d") }})
+{% endfor %}
+
+</details>
+
+{% endfor %}
+{% else %}
+_이 기간에 수집된 문서가 없습니다._
+{% endif %}
+
+---
+
+*본 보고서는 정보 제공 목적으로 자동 생성되었으며, 투자 권유가 아닙니다.*
+*키워드와 설명은 통계 분석 및 LLM으로 정제한 결과이며, 실제 투자 판단은 반드시 원문 링크를 확인한 뒤 본인 책임하에 하시기 바랍니다.*
