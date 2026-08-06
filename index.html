@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Antigravity Financial Analytics | 금융 정보 통합 분석</title>
+  <!-- Google Fonts: Inter & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Marked.js CDN for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="./static/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- 좌측 브랜드 사이드바 -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-title">Antigravity Finance</div>
+      </div>
+
+      <nav class="nav-menu">
+        <div class="nav-category">분석 메뉴</div>
+        <a href="#" class="nav-item active">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>통합 리포트 대시보드</span>
+        </a>
+        <a href="#" id="menuAuditLog" class="nav-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>분석 감사 이력 (Audit)</span>
+        </a>
+        <a href="#" class="nav-item disabled">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span>기업 코드 매핑 현황</span>
+        </a>
+
+        <div class="nav-category">데이터 파이프라인</div>
+        <a href="#" class="nav-item disabled">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span>DART 공시 수집기</span>
+        </a>
+        <a href="#" class="nav-item disabled">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>한국은행 ECOS / FRED</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-status">
+          <span class="status-indicator"></span>
+          <span>분석 엔진 100% 정상 가동</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 우측 메인 콘텐츠 -->
+    <main class="main-content">
+      <!-- 헤더 바 -->
+      <header class="main-header">
+        <div>
+          <h1 class="header-title">기업 및 시장 금융 정보 분석</h1>
+          <p class="header-desc">DART 공시, 실시간 주가 시세, 주요 재무 지표 자동 수집 및 통합 분석 보고서</p>
+        </div>
+        <div class="header-right">
+          <span class="version-tag">Engine v1.0 | Global Multi-Asset AI</span>
+        </div>
+      </header>
+
+      <!-- 외부 방문자용 API Key 입력 바 (소유자 접속시 자동 숨김) -->
+      <div id="apiKeyBanner" class="api-key-banner" style="display: none;">
+        <div class="banner-content">
+          <span class="banner-badge">🔑 방문자 전용 API 모드</span>
+          <span class="banner-text">실시간 AI 분석 실행을 위해 본인의 API Key를 입력하세요 (OpenAI / Gemini):</span>
+          <input type="password" id="userApiKey" class="api-key-input" placeholder="sk-... 또는 AIzaSy... (서버 저장 안 됨, 단일 호출용)">
+          <button type="button" class="save-key-btn" onclick="saveUserApiKey()">키 적용</button>
+          <button type="button" class="pin-auth-btn" onclick="promptOwnerPin()">⚙️ 소유자 PIN 인증</button>
+        </div>
+      </div>
+
+      <!-- 요약 지표 바 (Top Stat Cards) -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">기업 코드 매핑 사전</div>
+          <div class="metric-value">자동 변환</div>
+          <div class="metric-sub">DART 및 KRX 종목 코드 매치</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">데이터 수집 파이프라인</div>
+          <div class="metric-value">8개 도구 연동</div>
+          <div class="metric-sub">공시, 주가시세, 뉴스, 법률</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">무결성 검증 엔진</div>
+          <div class="metric-value">자동 팩트체크</div>
+          <div class="metric-sub">원문 대조 및 오류 자동 교정</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">정보 검색 파이프라인</div>
+          <div class="metric-value">Hybrid RAG</div>
+          <div class="metric-sub">BM25 + Vector 검색 융합</div>
+        </div>
+      </div>
+
+      <!-- 메인 2열 분할 워크스페이스 -->
+      <div class="workspace-grid">
+        <!-- 좌측: 질의 입력 및 분석 프로세스 -->
+        <div class="card query-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">분석 질의 입력</h2>
+          </div>
+
+          <div class="prompt-suggestions">
+            <span class="suggestion-label">자주 찾는 분석:</span>
+            <button type="button" class="suggestion-chip" onclick="setQuery('삼성전자 최근 주가 시세와 DART 공시 동향 분석해줘')">삼성전자 주가 및 DART 공시</button>
+            <button type="button" class="suggestion-chip" onclick="setQuery('엔비디아 실시간 주가 시세 및 미국 금융 뉴스 분석해줘')">엔비디아 미국 주가 & 월가 뉴스</button>
+            <button type="button" class="suggestion-chip" onclick="setQuery('서울 강남구 최근 아파트 매매 실거래가 동향 분석해줘')">서울 강남구 부동산 실거래가</button>
+            <button type="button" class="suggestion-chip" onclick="setQuery('한국 국고채 3년물 10년물 금리와 미국채 금리 분석해줘')">국고채 3년/10년 및 미국채 금리</button>
+          </div>
+
+          <div class="input-form">
+            <textarea id="queryInput" placeholder="분석할 기업명이나 금융 질문을 입력하세요 (예: 삼성전자 최근 주가 시세와 DART 공시 동향 분석해줘)..." rows="4"></textarea>
+            <button id="btnRun" class="submit-button">
+              <span>분석 보고서 생성</span>
+            </button>
+          </div>
+
+          <!-- 분석 실행 상태 타임라인 -->
+          <div id="statusTimeline" class="status-timeline" style="display: none;">
+            <div class="timeline-head">
+              <span class="timeline-title">단계별 데이터 처리 진행 상황</span>
+              <span id="progressPercent" class="progress-percent">0%</span>
+            </div>
+            <div class="progress-track">
+              <div id="progressBar" class="progress-bar" style="width: 0%;"></div>
+            </div>
+
+            <div class="process-steps">
+              <div id="step-researcher" class="process-step">
+                <div class="step-bullet"></div>
+                <div class="step-text">
+                  <div class="step-title">원천 데이터 수집 (DART 공시 / 주가 시세)</div>
+                  <div class="step-sub">실시간 API 및 웹 크롤러 가동</div>
+                </div>
+              </div>
+              <div id="step-analyst" class="process-step">
+                <div class="step-bullet"></div>
+                <div class="step-text">
+                  <div class="step-title">정량 지표 및 동향 인사이트 분석</div>
+                  <div class="step-sub">주요 재무 비율 및 공시 항목 구조화</div>
+                </div>
+              </div>
+              <div id="step-compliance" class="process-step">
+                <div class="step-bullet"></div>
+                <div class="step-text">
+                  <div class="step-title">원문 대조 및 팩트 검증 (Compliance)</div>
+                  <div class="step-sub">수집된 데이터 간 일치 여부 확인</div>
+                </div>
+              </div>
+              <div id="step-writer" class="process-step">
+                <div class="step-bullet"></div>
+                <div class="step-text">
+                  <div class="step-title">통합 보고서 작성 및 최종 교정</div>
+                  <div class="step-sub">마크다운 리포트 생성 및 비판 검수 완료</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 우측: 리포트 출력 패널 -->
+        <div class="card report-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">분석 결과 보고서</h2>
+            <div id="reportActions" class="report-actions" style="display: none;">
+              <button id="btnCopy" class="secondary-button">보고서 복사</button>
+            </div>
+          </div>
+
+          <div id="reportPlaceholder" class="placeholder-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <p class="placeholder-text">질의를 입력하고 '분석 보고서 생성'을 클릭하면 검증된 분석 결과가 이곳에 출력됩니다.</p>
+          </div>
+
+          <div id="reportViewer" class="markdown-output" style="display: none;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 감사 이력 모달 -->
+  <div id="auditModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">분석 감사 이력 (Audit Trail)</h3>
+        <button id="btnCloseModal" class="close-icon">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p class="modal-intro">시스템의 모든 데이터 수집, 도구 실행, 검증 이력이 타임스탬프와 함께 보관됩니다.</p>
+        <div id="auditList" class="audit-log-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./static/app.js?v=4"></script>
+</body>
+</html>
