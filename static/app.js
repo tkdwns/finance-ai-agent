@@ -1,5 +1,6 @@
-/* Antigravity Financial Analytics Frontend Script (Dual-Mode: Local API & GitHub Pages Client Generator) */
+/* Antigravity Financial Analytics Frontend Script (Dual-Engine: Fast Client Generator on GitHub Pages & Local Backend API) */
 
+// 전역 쿼리 설정
 window.setQuery = function(text) {
   const queryInput = document.getElementById("queryInput");
   if (queryInput) {
@@ -21,20 +22,31 @@ window.saveUserApiKey = function() {
 window.promptOwnerPin = async function() {
   const pin = prompt("소유자 관리자 핀코드를 입력하세요:");
   if (pin && pin.trim()) {
-    try {
-      const resp = await fetch(`/api/health?pin=${encodeURIComponent(pin.trim())}`);
-      if (resp.ok && (resp.headers.get("content-type") || "").includes("application/json")) {
-        const data = await resp.json();
-        if (data.is_owner || data.is_pin_valid) {
-          localStorage.setItem("admin_pin_code", pin.trim());
-          const apiKeyBanner = document.getElementById("apiKeyBanner");
-          if (apiKeyBanner) apiKeyBanner.style.display = "none";
-          alert("소유자 인증에 성공했습니다! API 키 입력 바가 자동 숨김 처리됩니다.");
-          return;
-        }
+    if (window.location.hostname.includes("github.io")) {
+      if (pin.trim() === "1234") {
+        localStorage.setItem("admin_pin_code", pin.trim());
+        const apiKeyBanner = document.getElementById("apiKeyBanner");
+        if (apiKeyBanner) apiKeyBanner.style.display = "none";
+        alert("소유자 인증에 성공했습니다!");
+        return;
       }
-    } catch (e) {}
-    alert("핀코드가 일치하지 않습니다. 다시 확인해주세요.");
+    } else {
+      try {
+        const resp = await fetch(`/api/health?pin=${encodeURIComponent(pin.trim())}`);
+        const ct = resp.headers.get("content-type") || "";
+        if (resp.ok && ct.includes("application/json")) {
+          const data = await resp.json();
+          if (data.is_owner || data.is_pin_valid) {
+            localStorage.setItem("admin_pin_code", pin.trim());
+            const apiKeyBanner = document.getElementById("apiKeyBanner");
+            if (apiKeyBanner) apiKeyBanner.style.display = "none";
+            alert("소유자 인증에 성공했습니다! API 키 입력 바가 자동 숨김 처리됩니다.");
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+    alert("핀코드가 일치하지 않습니다. (기본 핀코드: 1234)");
   }
 };
 
@@ -58,29 +70,38 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnCloseModal = document.getElementById("btnCloseModal");
   const auditList = document.getElementById("auditList");
 
+  const isGitHubPages = window.location.hostname.includes("github.io") || window.location.protocol === "file:";
+
   // URL 파라미터 또는 localStorage 핀코드 확인
   const urlParams = new URLSearchParams(window.location.search);
   const savedPin = urlParams.get("pin") || localStorage.getItem("admin_pin_code") || "";
 
-  // 헬스 체크를 통한 소유자(로컬 환경 또는 핀코드 인증) 파악
-  try {
-    const healthResp = await fetch(`/api/health?pin=${encodeURIComponent(savedPin)}`);
-    const contentType = healthResp.headers.get("content-type") || "";
-    if (healthResp.ok && contentType.includes("application/json")) {
-      const healthData = await healthResp.json();
-      if (healthData.is_owner) {
-        if (apiKeyBanner) apiKeyBanner.style.display = "none";
-      } else {
-        if (apiKeyBanner) apiKeyBanner.style.display = "block";
-        const savedKey = sessionStorage.getItem("user_api_key");
-        if (savedKey && userApiKeyInput) userApiKeyInput.value = savedKey;
-      }
+  // 헬스 체크 감지
+  if (isGitHubPages) {
+    if (savedPin === "1234") {
+      if (apiKeyBanner) apiKeyBanner.style.display = "none";
     } else {
-      // 깃허브 페이지 정적 환경
       if (apiKeyBanner) apiKeyBanner.style.display = "block";
     }
-  } catch (e) {
-    if (apiKeyBanner) apiKeyBanner.style.display = "block";
+  } else {
+    try {
+      const healthResp = await fetch(`/api/health?pin=${encodeURIComponent(savedPin)}`);
+      const ct = healthResp.headers.get("content-type") || "";
+      if (healthResp.ok && ct.includes("application/json")) {
+        const healthData = await healthResp.json();
+        if (healthData.is_owner) {
+          if (apiKeyBanner) apiKeyBanner.style.display = "none";
+        } else {
+          if (apiKeyBanner) apiKeyBanner.style.display = "block";
+          const savedKey = sessionStorage.getItem("user_api_key");
+          if (savedKey && userApiKeyInput) userApiKeyInput.value = savedKey;
+        }
+      } else {
+        if (apiKeyBanner) apiKeyBanner.style.display = "block";
+      }
+    } catch (e) {
+      if (apiKeyBanner) apiKeyBanner.style.display = "block";
+    }
   }
 
   // 분석 실행 이벤트
@@ -108,24 +129,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       let reportText = null;
 
-      // 1. 백엔드 API (/api/analyze) 호출 시도
-      try {
-        const response = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: query, api_key: userKey || null, pin: savedPin || null }),
-        });
+      // 깃허브 페이지일 때는 백엔드 HTTP 요청을 전면 패스하고 클라이언트 엔진 가동
+      if (!isGitHubPages) {
+        try {
+          const response = await fetch("/api/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: query, api_key: userKey || null, pin: savedPin || null }),
+          });
 
-        const contentType = response.headers.get("content-type") || "";
-        if (response.ok && contentType.includes("application/json")) {
-          const data = await response.json();
-          reportText = data.report || data.final_report;
+          const ct = response.headers.get("content-type") || "";
+          if (response.ok && ct.includes("application/json")) {
+            const data = await response.json();
+            reportText = data.report || data.final_report;
+          }
+        } catch (netErr) {
+          console.warn("Local API not reachable, falling back:", netErr);
         }
-      } catch (netErr) {
-        console.warn("Backend API not reachable, falling back to client generator:", netErr);
       }
 
-      // 2. 깃허브 페이지(정적 호스트) 또는 백엔드 미가동 시 클라이언트 자동 분석 엔진 가동
+      // 깃허브 페이지 또는 백엔드 미가동 시 클라이언트 자동 분석 엔진 가동
       if (!reportText) {
         reportText = await generateClientSideReport(query, userKey);
       }
@@ -136,17 +159,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       reportActions.style.display = "block";
 
     } catch (err) {
-      alert(`오류: ${err.message}`);
+      alert(`안내: ${err.message}`);
       reportPlaceholder.style.display = "flex";
-      reportPlaceholder.innerHTML = `<p style="color: #dc2626;">분석 중 오류가 발생했습니다: ${err.message}</p>`;
+      reportPlaceholder.innerHTML = `<p style="color: #dc2626;">분석 중 알림: ${err.message}</p>`;
     } finally {
       btnRun.disabled = false;
       btnRun.querySelector("span").textContent = "분석 보고서 생성";
     }
   });
 
-  // 클라이언트 분석 리포트 파이프라인 (깃허브 페이지 정적 웹 및 사용자 API 지원)
+  // 클라이언트 전용 멀티자산 분석 리포트 생성기
   async function generateClientSideReport(query, userKey) {
+    // 1. 방문자 API 키가 있는 경우 OpenAI 직호출
     if (userKey && (userKey.startsWith("sk-") || userKey.startsWith("AIzaSy"))) {
       try {
         const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -163,15 +187,19 @@ document.addEventListener("DOMContentLoaded", async () => {
             ]
           })
         });
-        if (res.ok) {
+        const ct = res.headers.get("content-type") || "";
+        if (res.ok && ct.includes("application/json")) {
           const data = await res.json();
-          return data.choices[0].message.content;
+          if (data.choices && data.choices[0] && data.choices[0].message) {
+            return data.choices[0].message.content;
+          }
         }
       } catch (e) {
-        console.warn("Direct OpenAI API call failed, falling back to pre-computed demo:", e);
+        console.warn("Direct OpenAI API call failed, fallback to demo report:", e);
       }
     }
 
+    // 2. 깃허브 데모 보고서 템플릿
     const qLower = query.toLowerCase();
     if (qLower.includes("엔비디아") || qLower.includes("nvda") || qLower.includes("미국")) {
       return `# 🇺🇸 엔비디아(NVDA) 및 미국 증시 글로벌 분석 보고서
@@ -269,17 +297,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function openAuditModal() {
     auditModal.style.display = "flex";
     auditList.innerHTML = "<p>감사 이력을 조회 중입니다...</p>";
+
+    if (isGitHubPages) {
+      renderAuditLogs([
+        { role: "Researcher", action: "CollectData", timestamp: new Date().toISOString(), details: { obs_count: 5, mode: "GitHub Pages Demo Engine" } },
+        { role: "Analyst", action: "AnalyzeData", timestamp: new Date().toISOString(), details: { analysis: "5대 자산 통합 분석 완료" } },
+        { role: "Compliance", action: "VerifyFact", timestamp: new Date().toISOString(), details: { passed: true } }
+      ]);
+      return;
+    }
+
     try {
       const res = await fetch("/api/history");
-      const contentType = res.headers.get("content-type") || "";
-      if (res.ok && contentType.includes("application/json")) {
+      const ct = res.headers.get("content-type") || "";
+      if (res.ok && ct.includes("application/json")) {
         const data = await res.json();
         renderAuditLogs(data.history || []);
       } else {
         renderAuditLogs([
-          { role: "Researcher", action: "CollectData", timestamp: new Date().toISOString(), details: { obs_count: 5, mode: "GitHub Pages Demo" } },
-          { role: "Analyst", action: "AnalyzeData", timestamp: new Date().toISOString(), details: { analysis: "5대 자산 통합 분석 완료" } },
-          { role: "Compliance", action: "VerifyFact", timestamp: new Date().toISOString(), details: { passed: true } }
+          { role: "Researcher", action: "CollectData", timestamp: new Date().toISOString(), details: { obs_count: 5, mode: "GitHub Pages Demo" } }
         ]);
       }
     } catch (err) {
@@ -328,7 +364,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         clearInterval(progressTimer);
       }
-    }, 1200);
+    }, 1000);
   }
 
   function finishProcessProgress() {
