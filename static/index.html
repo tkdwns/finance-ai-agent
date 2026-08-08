@@ -72,16 +72,7 @@
         </div>
       </header>
 
-      <!-- 외부 방문자용 API Key 입력 바 (소유자 접속시 자동 숨김) -->
-      <div id="apiKeyBanner" class="api-key-banner" style="display: none;">
-        <div class="banner-content">
-          <span class="banner-badge">🔑 방문자 전용 API 모드</span>
-          <span class="banner-text">실시간 AI 분석 실행을 위해 본인의 API Key를 입력하세요 (OpenAI / Gemini):</span>
-          <input type="password" id="userApiKey" class="api-key-input" placeholder="sk-... 또는 AIzaSy... (서버 저장 안 됨, 단일 호출용)">
-          <button type="button" class="save-key-btn" onclick="saveUserApiKey()">키 적용</button>
-          <button type="button" class="pin-auth-btn" onclick="promptOwnerPin()">⚙️ 소유자 PIN 인증</button>
-        </div>
-      </div>
+
 
       <!-- 요약 지표 바 (Top Stat Cards) -->
       <div class="metrics-grid">

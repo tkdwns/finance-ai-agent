@@ -37,8 +37,6 @@ agent_team = FinancialAgentTeam()
 
 class QueryRequest(BaseModel):
     query: str
-    api_key: str | None = None
-    pin: str | None = None
 
 
 @app.get("/")
@@ -55,11 +53,6 @@ async def analyze_financial_query(req: QueryRequest) -> dict[str, Any]:
     """사용자의 금융 질의를 Multi-Agent 팀에 전달하여 자율 분석 보고서를 생성한다."""
     if not req.query or not req.query.strip():
         raise HTTPException(status_code=400, detail="질의 내용을 입력하세요.")
-
-    # 외부 방문자가 본인 API 키를 제공한 경우 동적 적용
-    if req.api_key and req.api_key.strip():
-        os.environ["OPENAI_API_KEY"] = req.api_key.strip()
-        os.environ["GEMINI_API_KEY"] = req.api_key.strip()
 
     try:
         result = agent_team.run_team_analysis(req.query.strip())
