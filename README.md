@@ -4,10 +4,27 @@
 
 ---
 
+## 💡 비전공자도 10초 만에 이해하는 AI 에이전트 동작 원리
+
+이 시스템은 마치 **"금융 종합 연구소의 5인 전문 드림팀"**이 협업하여 보고서를 만드는 것과 똑같이 작동합니다:
+
+```
+[사용자의 질문] ➔ "삼성전자 주가랑 강남 아파트 실거래가, 국고채 금리 분석해줘!"
+       │
+       ▼
+1. 🕵️ 자료 조사관 (리서처)     : DART 공시, 실시간 주가, 부동산 실거래가, 금리 데이터를 빛의 속도로 모아옴
+2. 📊 수치 분석관 (애널리스트)   : "금리가 오르면 주가와 아파트 대출에 어떤 영향을 주는지" 연관관계를 분석함
+3. ⚖️ 팩트 검증관 (컴플라이언스) : AI가 거짓말(환각)을 하지 못하도록 수집된 원본 수치와 100% 대조·팩트체크함
+4. ✍️ 보고서 작성관 (라이터)    : 한눈에 보기 편하도록 표와 지표가 담긴 마크다운 리포트를 작성함
+5. 🧐 수석 검수관 (크리틱)      : 보고서를 읽어보고 부족하면 스스로 다시 고쳐 쓰게 한 뒤(Self-Correction) 완벽할 때 제출!
+```
+
+---
+
 ## 🌟 핵심 기능 및 아키텍처 특징
 
 1. **🧠 ReAct 자율 추론 엔진 (Agent Brain)**
-   - 정해진 순서대로 작동하는 단순 파이프라인이 아닌, 목표가 주어지면 **`생각(Think) ➔ 행동(Act) ➔ 관찰(Observe)`** 루프를 스스로 실행하는 자율형 대뇌 엔진 탑재.
+   - 정해진 순서대로 작동하는 단순 프로그램이 아닌, 목표가 주어지면 **`생각(Think) ➔ 행동(Act) ➔ 관찰(Observe)`** 루프를 스스로 실행하는 자율형 대뇌 엔진 탑재.
 2. **🌐 5대 금융 자산 통합 수집 및 도구 레지스트리 (Tool Registry)**
    - **한국 주식**: DART 공시, 실시간 주가 시세, 주요 재무 비율(PER/PBR/시가총액)
    - **미국 주식**: 나스닥(^IXIC), S&P 500(^GSPC), SOX 지수, NVDA, AAPL, TSLA 실시간 시세 및 Wall Street News RSS
@@ -16,7 +33,6 @@
 3. **🏢 기업명 ↔ 고유코드 자동 매핑 (`CorpCodeMapper`)**
    - 복잡한 8자리 DART 고유코드(`00126380`)나 6자리 주식 종목코드(`005930`)를 외울 필요 없이, `"삼성전자"`, `"엔비디아"`, `"카카오"` 등의 한글 기업명만 대면 자동으로 코드를 찾아서 조회.
 4. **👥 5인 Multi-Agent 드림팀 & 자기 반성(Self-Reflection) 루프**
-   - **리서처(Researcher)** ➔ **분석가(Analyst)** ➔ **팩트체커(Compliance)** ➔ **리포터(Writer)** ➔ **비판가(Critic)**
    - 최종 보고서 작성 전 비판가 에이전트(Critic)가 검토 후 부실할 경우 스스로 고쳐 쓰는 **Self-Correction** 수행.
 5. **💡 Cross-Asset 파급 효과 연계 분석 (Global Correlation)**
    - `미 국채 금리 ➔ 주식 시장 할인율(PER Multiplier) ➔ 주택담보대출 금리 부담 ➔ 미 기술주/SOX 지수 ➔ 국내 기술주 수급`의 연결고리를 다차원 분석.
@@ -58,36 +74,15 @@ graph TD
 
 ---
 
-## 🔄 에이전트 상세 실행 처리 순서 (Step-by-Step Flow)
+## 🔄 에이전트 처리 단계별 핵심 역할
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as 사용자 / Web UI
-    participant Team as FinancialAgentTeam
-    participant Res as 🕵️ Researcher Agent
-    participant Ana as 📊 Analyst Agent
-    participant Comp as ⚖️ Compliance Agent
-    participant Writ as ✍️ Writer Agent
-    participant Crit as 🧐 Critic Agent
-
-    User->>Team: 질의 전달 (예: "엔비디아 시세와 서울 부동산 실거래가 분석해줘")
-    Team->>Res: 1. 원천 데이터 수집 지시
-    Res->>Res: DART, US Stock, FRED, MOLIT 수집 도구 호출
-    Res-->>Team: 수집된 정량 데이터 반환
-    Team->>Ana: 2. 정량 비율 & Cross-Asset correlation 분석 지시
-    Ana-->>Team: 금리-주가-부동산 파급 효과 분석 데이터 반환
-    Team->>Comp: 3. 수집 원문 팩트 대조 & 무결성 검증 지시
-    Comp-->>Team: 팩트체크 통과 확인
-    Team->>Writ: 4. 5대 자산 통합 보고서 초안 작성
-    Writ-->>Team: 마크다운 보고서 초안 반환
-    Team->>Crit: 5. 비판가 검수 & Self-Correction 검토
-    alt 보고서 개선 필요 시
-        Crit-->>Writ: 수정 요청 피드백 전송 후 재작성
-    end
-    Crit-->>Team: 최종 승인 완료
-    Team-->>User: 📊 최종 검증 보고서 및 Audit Trail 로그 반환
-```
+| 단계 | 에이전트 이름 | 비전공자를 위한 핵심 역할 설명 |
+| :---: | :--- | :--- |
+| **1단계** | **🕵️ 자료 조사관 (Researcher)** | DART 공시, 실시간 주가, 부동산 실거래가, 국채 금리 등 필요한 원천 데이터를 직접 수집함 |
+| **2단계** | **📊 수치 분석관 (Analyst)** | 금리 변동이 주식과 부동산 대출에 미치는 파급 효과(Cross-Asset)를 정량 계산함 |
+| **3단계** | **⚖️ 팩트 검증관 (Compliance)** | 수집된 숫자와 공시 원문을 대조하여 AI의 거짓말(환각 현상)을 100% 차단 및 검증함 |
+| **4단계** | **✍️ 보고서 작성관 (Writer)** | 검증된 결과를 바탕으로 읽기 쉬운 깔끔한 마크다운 분석 보고서를 작성함 |
+| **5단계** | **🧐 수석 검수관 (Critic)** | 작성된 보고서를 다각도로 검토하고, 품질이 미흡하면 고쳐 쓰게 만든 뒤 승인함 |
 
 ---
 
