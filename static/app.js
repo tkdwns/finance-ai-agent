@@ -68,9 +68,16 @@ document.addEventListener("DOMContentLoaded", () => {
       reportActions.style.display = "block";
 
     } catch (err) {
-      alert(`Agent 오류: ${err.message}`);
       reportPlaceholder.style.display = "flex";
-      reportPlaceholder.innerHTML = `<p style="color: #dc2626; padding: 20px;">⚠️ Agent 실행 실패: ${err.message}<br><br><small>로컬에서 python app.py 서버가 실행 중인지 확인하세요.</small></p>`;
+      reportPlaceholder.innerHTML = `
+        <div style="text-align: center; padding: 24px; color: #ef4444; max-width: 480px; margin: 0 auto;">
+          <h3 style="font-size: 16px; margin-bottom: 8px;">⚠️ 파이썬 백엔드 에이전트 연결 필요</h3>
+          <p style="font-size: 13px; color: #a1a1aa; line-height: 1.6; margin-bottom: 12px;">
+            진짜 파이썬 Multi-Agent 백엔드 서버(<code>app.py</code>) 연결이 필요합니다.<br>
+            터미널에서 <code>python app.py</code> 실행 후 <strong>http://localhost:8000</strong>으로 접속하시면 실시간 수집 및 자율 에이전트 분석이 100% 가동됩니다.
+          </p>
+        </div>
+      `;
     } finally {
       btnRun.disabled = false;
       btnRun.querySelector("span").textContent = "분석 보고서 생성";

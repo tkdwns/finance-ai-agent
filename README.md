@@ -36,7 +36,9 @@
    - 최종 보고서 작성 전 비판가 에이전트(Critic)가 검토 후 부실할 경우 스스로 고쳐 쓰는 **Self-Correction** 수행.
 5. **💡 Cross-Asset 파급 효과 연계 분석 (Global Correlation)**
    - `미 국채 금리 ➔ 주식 시장 할인율(PER Multiplier) ➔ 주택담보대출 금리 부담 ➔ 미 기술주/SOX 지수 ➔ 국내 기술주 수급`의 연결고리를 다차원 분석.
-6. **💻 모던 다크모드 웹 대시보드 UI (FastAPI + Vanilla JS)**
+6. **💾 Okapi BM25 + Vector 하이브리드 RAG 기억 장치 (`FinancialMemory`)**
+   - Okapi BM25($k_1=1.5, b=0.75$ 단어 빈도 및 문서 길이 정규화)와 TF-IDF Vector 코사인 유사도를 알파 블렌딩 융합한 시맨틱 RAG 검색 엔진 구축.
+7. **💻 모던 다크모드 웹 대시보드 UI (FastAPI + Vanilla JS)**
    - CLI 환경뿐만 아니라 **FastAPI 백엔드 + 눈이 편안한 SaaS 대시보드 UI** 지원 (`http://localhost:8000`).
 
 ---

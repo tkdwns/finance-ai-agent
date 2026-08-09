@@ -186,14 +186,13 @@ class FinancialAgentTeam:
             self.audit_logger.log_event(query_id, "Writer", "RefineReport", {"feedback": critic_result.get("feedback")})
 
         # 보장 Failsafe: final_report에 주요 수집 정보 및 Cross-Asset 파급 효과 누락 시 상단 자동 결합
+        title = f"# {detected_corp or '글로벌 금융'} 자율 정보 분석 통합 보고서\n\n"
         if stock_section_md and ("현재 주가" not in final_report and "현재가" not in final_report):
-            title = f"# {detected_corp or '글로벌 금융'} 자율 정보 분석 통합 보고서\n\n"
             final_report = title + stock_section_md + re_section_md + bond_section_md + cross_asset_section_md + final_report
         elif re_section_md and "부동산" not in final_report:
-            final_report = re_section_md + final_report
+            final_report = title + re_section_md + cross_asset_section_md + final_report
         elif bond_section_md and "금리" not in final_report:
-            final_report = bond_section_md + final_report
-            final_report = f"{title}{stock_section_md}## 2. 📋 주요 DART 공시 동향 및 상세\n\n{final_report}"
+            final_report = title + bond_section_md + cross_asset_section_md + final_report
 
         return {
             "query_id": query_id,
